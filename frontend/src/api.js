@@ -1,0 +1,32 @@
+const API_BASE = 'http://127.0.0.1:8000'
+
+async function request(path, options = {}) {
+  const res = await fetch(API_BASE + path, {
+    headers: { 'Content-Type': 'application/json' },
+    ...options,
+  })
+
+  // 204 No Content
+  if (res.status === 204) return null
+
+  const data = await res.json().catch(() => null)
+
+  if (!res.ok) {
+    const message = data?.detail || `HTTP ${res.status}`
+    throw new Error(message)
+  }
+
+  return data
+}
+
+export function fetchTasks() {
+  return request('/api/tasks')
+}
+
+export function createTask(payload) {
+  return request('/api/tasks', { method: 'POST', body: JSON.stringify(payload) })
+}
+
+export function deleteTask(id) {
+  return request(`/api/tasks/${id}`, { method: 'DELETE' })
+}
