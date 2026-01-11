@@ -11,8 +11,8 @@
       <ProgressBar :value="completedCount" :max="activeTasks.length" label="Выполнено задач" />
 
       <div style="margin-top:10px;">
-        <button :disabled="activeTasks.length === 0" @click="submitDay">
-          Сохранить день
+        <button :disabled="activeTasks.length === 0 || submitting" @click="submitDay">
+          {{ submitting ? 'Сохраняю...' : 'Сохранить день' }}
         </button>
       </div>
 
@@ -57,16 +57,17 @@ import LayoutCard from '../components/LayoutCard.vue'
 import ProgressBar from '../components/ProgressBar.vue'
 import DailyTaskRow from '../components/DailyTaskRow.vue'
 import DaySummaryModal from '../components/DaySummaryModal.vue'
-import { fetchTasks } from '../api'
+import { fetchTasks, submitToday } from '../api'
 
 const today = new Date().toLocaleDateString()
 
 const loading = ref(false)
+const submitting = ref(false)
 const error = ref('')
 
 const tasks = ref([])
 
-// results: объект вида { [taskId]: number }
+// results: объект вида { [taskId]: number | null }
 const results = reactive({})
 
 const modalOpen = ref(false)
@@ -78,10 +79,10 @@ const summary = reactive({
   rows: [],
 })
 
-const activeTasks = computed(() => tasks.value.filter(t => t.active))
+const activeTasks = computed(() => tasks.value.filter((t) => t.active))
 
 const completedCount = computed(() => {
-  return activeTasks.value.filter(t => {
+  return activeTasks.value.filter((t) => {
     const v = Number(results[t.id])
     return Number.isFinite(v) && v >= Number(t.min_value)
   }).length
@@ -93,59 +94,60 @@ async function load() {
   try {
     tasks.value = await fetchTasks()
 
-    // Подготовим results для активных задач (если ещё нет)
+    // подготовим results
     for (const t of tasks.value) {
       if (results[t.id] === undefined) results[t.id] = null
     }
   } catch (e) {
-    error.value = e.message || 'Ошибка загрузки'
+    error.value = e?.message || 'Ошибка загрузки'
   } finally {
     loading.value = false
   }
 }
 
-function submitDay() {
-  const rows = activeTasks.value.map(t => {
-    const value = Number(results[t.id])
-    const safeValue = Number.isFinite(value) ? value : 0
+async function submitDay() {
+  if (submitting.value) return
+  submitting.value = true
 
-    const passed = safeValue >= Number(t.min_value)
-    const quality = Math.min(safeValue / Number(t.target_value), 1)
+  try {
+    // 1) собираем payload
+    const items = activeTasks.value.map((t) => ({
+      task_id: t.id,
+      value: results[t.id] ?? null,
+    }))
 
-    return {
-      id: t.id,
-      title: t.title,
-      unit: t.unit,
-      min_value: t.min_value,
-      target_value: t.target_value,
-      weight: t.weight,
-      value: Number.isFinite(value) ? value : null,
-      passed,
-      quality,
-    }
-  })
+    // 2) сохраняем на сервер
+    const saved = await submitToday(items)
 
-  const totalCount = rows.length
-  const completedCountLocal = rows.filter(r => r.passed).length
+    // 3) строим данные для модалки
+    const taskById = Object.fromEntries(activeTasks.value.map((t) => [t.id, t]))
 
-  // день провален, если провалено больше 1 задачи
-  const failedCount = rows.filter(r => !r.passed).length
-  const failed = failedCount > 1
+    summary.score = saved.score
+    summary.failed = saved.failed
+    summary.completedCount = saved.completed_count
+    summary.totalCount = saved.total_count
 
-  // балл по весам (твой вариант: качество = min(value/target, 1))
-  const sumWeight = rows.reduce((acc, r) => acc + Number(r.weight || 1), 0) || 1
-  const weightedQuality = rows.reduce((acc, r) => acc + Number(r.weight || 1) * r.quality, 0)
+    summary.rows = saved.items.map((i) => {
+      const t = taskById[i.task_id]
+      return {
+        id: i.task_id,
+        title: t?.title ?? `Task ${i.task_id}`,
+        unit: t?.unit ?? '',
+        min_value: t?.min_value ?? 0,
+        target_value: t?.target_value ?? 0,
+        weight: t?.weight ?? 1,
+        value: i.value,
+        passed: i.passed,
+        quality: i.quality,
+      }
+    })
 
-  let score = Math.floor((weightedQuality / sumWeight) * 100)
-  if (failed) score = 0
-
-  summary.score = score
-  summary.failed = failed
-  summary.completedCount = completedCountLocal
-  summary.totalCount = totalCount
-  summary.rows = rows
-
-  modalOpen.value = true
+    modalOpen.value = true
+  } catch (e) {
+    alert(e?.message || 'Ошибка сохранения дня')
+  } finally {
+    submitting.value = false
+  }
 }
 
 onMounted(load)

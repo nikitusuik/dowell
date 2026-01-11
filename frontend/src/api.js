@@ -30,3 +30,24 @@ export function createTask(payload) {
 export function deleteTask(id) {
   return request(`/api/tasks/${id}`, { method: 'DELETE' })
 }
+
+export function submitToday(items) {
+  return request('/api/logs/today/submit', {
+    method: 'POST',
+    body: JSON.stringify({ items }),
+  })
+}
+
+export function fetchMonthLogs() {
+  return request('/api/logs/month')
+}
+export function fetchTask(id) {
+  return request(`/api/tasks/${id}`)
+}
+
+export function updateTask(id, payload) {
+  return request(`/api/tasks/${id}`, {
+    method: 'PUT',
+    body: JSON.stringify(payload),
+  })
+}
