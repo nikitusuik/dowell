@@ -16,19 +16,22 @@
       </div>
     </div>
 
-    <div style="display:flex; flex-direction:column; gap:8px; min-width:140px;">
+    <div style="display:flex; flex-direction:column; gap:8px; min-width:180px;">
       <button @click="$emit('edit', task.id)">Редактировать</button>
+
+      <button @click="$emit('toggle-active', task.id)">
+        {{ task.active ? 'Убрать из челленджа' : 'Вернуть в челлендж' }}
+      </button>
+
       <button @click="$emit('remove', task.id)">Удалить</button>
     </div>
   </div>
 </template>
 
 <script setup>
-// props: задача приходит сверху
 defineProps({
   task: { type: Object, required: true }
 })
 
-// emits: события наверх (требование задания)
-defineEmits(['edit', 'remove'])
+defineEmits(['edit', 'remove', 'toggle-active'])
 </script>

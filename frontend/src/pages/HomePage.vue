@@ -11,9 +11,10 @@
       <ProgressBar :value="completedCount" :max="activeTasks.length" label="Выполнено задач" />
 
       <div style="margin-top:10px;">
-        <button :disabled="activeTasks.length === 0 || submitting" @click="submitDay">
-          {{ submitting ? 'Сохраняю...' : 'Сохранить день' }}
-        </button>
+        <button class="btn-primary" :disabled="activeTasks.length === 0 || submitting" @click="submitDay">
+  {{ submitting ? 'Сохраняю...' : 'Сохранить день' }}
+</button>
+
       </div>
 
       <template #footer="{ meta }">

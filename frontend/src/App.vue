@@ -1,26 +1,17 @@
 <template>
-  <div style="max-width: 900px; margin: 0 auto; padding: 16px;">
-    <header style="display:flex; gap: 12px; align-items:center; margin-bottom: 16px;">
-      <strong>Dowell</strong>
+  <div class="container">
+    <AppHeader />
 
-      <nav style="display:flex; gap: 10px;">
-        <RouterLink to="/">Главная</RouterLink>
-        <RouterLink to="/tasks">Задачи</RouterLink>
-        <RouterLink to="/tasks/new">Создать</RouterLink>
-        <RouterLink to="/month">Месяц</RouterLink>
-      </nav>
-    </header>
+    <div style="height:12px;"></div>
 
-    <main style="padding: 12px; border: 1px solid #ddd; border-radius: 12px;">
-      <RouterView />
-    </main>
+    <RouterView />
 
-    <footer style="margin-top: 16px; opacity: 0.7;">
-      <small>Dowell • SPA на Vue 3</small>
-    </footer>
+    <AppFooter />
   </div>
 </template>
 
 <script setup>
-import { RouterLink, RouterView } from 'vue-router'
+import { RouterView } from 'vue-router'
+import AppHeader from './components/AppHeader.vue'
+import AppFooter from './components/AppFooter.vue'
 </script>

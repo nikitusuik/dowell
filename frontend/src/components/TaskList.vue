@@ -8,6 +8,7 @@
       :task="t"
       @edit="$emit('edit', $event)"
       @remove="$emit('remove', $event)"
+      @toggle-active="$emit('toggle-active', $event)"
     />
   </div>
 </template>
@@ -19,5 +20,5 @@ defineProps({
   tasks: { type: Array, required: true }
 })
 
-defineEmits(['edit', 'remove'])
+defineEmits(['edit', 'remove', 'toggle-active'])
 </script>

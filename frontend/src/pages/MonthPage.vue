@@ -5,7 +5,7 @@
     <p v-if="loading">Загрузка...</p>
     <p v-else-if="error" style="color:crimson;">{{ error }}</p>
 
-    <table v-else style="width:100%; border-collapse:collapse;">
+    <table class="table">
       <thead>
         <tr>
           <th style="text-align:left; border-bottom:1px solid #ddd; padding:8px;">Дата</th>

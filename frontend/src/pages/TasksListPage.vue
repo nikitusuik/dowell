@@ -38,11 +38,12 @@
         :tasks="sortedTasks"
         @remove="removeTask"
         @edit="goEdit"
+        @toggle-active="toggleActive"
       />
 
       <template #footer="{ meta }">
         <small>
-          {{ meta.title }} • {{ meta.hint }} • создано: {{ meta.createdAt }}
+          {{ meta.title }} • {{ meta.hint }}
         </small>
       </template>
     </LayoutCard>
@@ -54,7 +55,7 @@ import { computed, ref, onMounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import TaskList from '../components/TaskList.vue'
 import LayoutCard from '../components/LayoutCard.vue'
-import { fetchTasks, deleteTask } from '../api'
+import { fetchTasks, deleteTask, setTaskActive } from '../api'
 
 const router = useRouter()
 
@@ -65,9 +66,7 @@ const error = ref('')
 const filter = ref('all')
 const sortBy = ref('created')
 
-watch([filter, sortBy], () => {
-  // требование задания: watch используется для реакции на изменение UI-состояния
-})
+watch([filter, sortBy], () => {})
 
 const filteredTasks = computed(() => {
   if (filter.value === 'active') return tasks.value.filter(t => t.active)
@@ -106,6 +105,21 @@ async function removeTask(id) {
     tasks.value = tasks.value.filter(t => t.id !== id)
   } catch (e) {
     alert(e.message || 'Ошибка удаления')
+  }
+}
+
+async function toggleActive(id) {
+  const t = tasks.value.find(x => x.id === id)
+  if (!t) return
+
+  const newValue = !t.active
+
+  try {
+    await setTaskActive(id, newValue)
+    // обновим локально без перезагрузки
+    t.active = newValue
+  } catch (e) {
+    alert(e.message || 'Ошибка обновления')
   }
 }
 
