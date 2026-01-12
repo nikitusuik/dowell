@@ -1,5 +1,35 @@
 services:
-  # db, backend, frontend добавим на следующих шагах
-  placeholder:
-    image: alpine:3.20
-    command: ["sh", "-c", "echo 'compose placeholder'"]
+  db:
+    image: postgres:16
+    container_name: dowell-db
+    environment:
+      POSTGRES_USER: dowell
+      POSTGRES_PASSWORD: dowell
+      POSTGRES_DB: dowell
+    ports:
+      - "5432:5432"
+    volumes:
+      - dowell_db_data:/var/lib/postgresql/data
+
+  backend:
+    build:
+      context: ./backend
+    container_name: dowell-backend
+    environment:
+      DATABASE_URL: postgresql://dowell:dowell@db:5432/dowell
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+
+  frontend:
+    build:
+      context: ./frontend
+    container_name: dowell-frontend
+    ports:
+      - "8080:80"
+    depends_on:
+      - backend
+
+volumes:
+  dowell_db_data:

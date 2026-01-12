@@ -1,4 +1,4 @@
-const API_BASE = 'http://127.0.0.1:8000'
+const API_BASE = ''
 
 async function request(path, options = {}) {
   const res = await fetch(API_BASE + path, {
@@ -49,5 +49,11 @@ export function updateTask(id, payload) {
   return request(`/api/tasks/${id}`, {
     method: 'PUT',
     body: JSON.stringify(payload),
+  })
+}
+export function setTaskActive(id, active) {
+  return request(`/api/tasks/${id}`, {
+    method: 'PUT',
+    body: JSON.stringify({ active }),
   })
 }
