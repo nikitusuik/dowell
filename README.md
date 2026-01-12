@@ -132,10 +132,10 @@
   @remove="removeTask"
   @toggle-active="toggleTaskActive"
 />
+
 Пример вычисляемого свойства, реализующего фильтрацию задач:
 
-js
-Копировать код
+
 const filteredTasks = computed(() => {
   if (filter.value === 'active') {
     return tasks.value.filter(t => t.active)
@@ -150,8 +150,7 @@ const filteredTasks = computed(() => {
 6. Пример данных (PostgreSQL / JSON)
 Пример структуры задачи:
 
-json
-Копировать код
+
 {
   "id": 1,
   "title": "Отжимания на кулаках",
@@ -165,8 +164,7 @@ json
 }
 Пример сохранённого дня:
 
-json
-Копировать код
+
 {
   "day": "2026-01-12",
   "score": 82,
@@ -177,8 +175,7 @@ json
 7. Инструкция по запуску (Docker)
 Для запуска проекта используется Docker Compose.
 
-bash
-Копировать код
+
 docker compose up --build
 После запуска:
 
