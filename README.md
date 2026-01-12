@@ -132,7 +132,6 @@
   @remove="removeTask"
   @toggle-active="toggleTaskActive"
 />
-
 Пример вычисляемого свойства, реализующего фильтрацию задач:
 
 
@@ -173,7 +172,7 @@ const filteredTasks = computed(() => {
   "total_count": 5
 }
 7. Инструкция по запуску (Docker)
-Для запуска проекта используется Docker Compose.
+Для запуска проекта используется Docker Compose:
 
 
 docker compose up --build
