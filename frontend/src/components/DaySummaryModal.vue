@@ -1,54 +1,103 @@
 <template>
-  <div v-if="open" style="position:fixed; inset:0; background:rgba(0,0,0,0.35); display:flex; align-items:center; justify-content:center; padding:16px;">
-    <div style="background:#fff; border-radius:16px; padding:16px; max-width:720px; width:100%;">
-      <div style="display:flex; justify-content:space-between; align-items:center; gap:12px;">
-        <h3 style="margin:0;">Итоги дня</h3>
-        <button @click="$emit('close')">✖</button>
+  <div v-if="open" class="overlay" @click.self="$emit('close')">
+    <div class="modal">
+      <h2>Итоги дня</h2>
+
+      <div class="row" style="margin-bottom:12px;">
+        <span class="badge">Баллы: {{ score }}/100</span>
+        <span
+          class="badge"
+          :style="{ color: failed ? 'var(--bad)' : 'var(--ok)' }"
+        >
+          {{ failed ? 'День провален' : 'День выполнен' }}
+        </span>
+        <span class="badge">
+          {{ completedCount }} / {{ totalCount }} задач
+        </span>
       </div>
 
-      <p style="margin-top:10px;">
-        <strong>Баллы:</strong> {{ score }}/100
-        <span v-if="failed" style="color:crimson; font-weight:600;">(день провален)</span>
-      </p>
-
-      <p><strong>Выполнено:</strong> {{ completedCount }} / {{ totalCount }} ({{ progressPercent }}%)</p>
-
-      <div style="display:flex; flex-direction:column; gap:8px; margin-top:12px;">
-        <div v-for="row in rows" :key="row.id" style="padding:10px; border:1px solid #eee; border-radius:12px;">
-          <div style="display:flex; justify-content:space-between; gap:10px;">
-            <strong>{{ row.title }}</strong>
-            <span v-if="row.passed">✅</span>
-            <span v-else>❌</span>
+      <div class="list">
+        <div
+          v-for="r in rows"
+          :key="r.id"
+          class="row-item"
+        >
+          <div>
+            <strong>{{ r.title }}</strong>
+            <div class="muted">
+              {{ r.value }} {{ r.unit }} /
+              min {{ r.min_value }} · target {{ r.target_value }}
+            </div>
           </div>
-          <div style="opacity:0.85;">
-            value: {{ row.value ?? '—' }} {{ row.unit }} • min {{ row.min_value }} • target {{ row.target_value }} • quality {{ row.quality.toFixed(2) }}
+
+          <div>
+            <span v-if="r.passed" style="color:var(--ok)">✔</span>
+            <span v-else style="color:var(--bad)">✘</span>
           </div>
         </div>
       </div>
 
-      <div style="display:flex; justify-content:flex-end; margin-top:14px;">
-        <button @click="$emit('close')">Закрыть</button>
+      <div style="margin-top:14px; text-align:right;">
+        <button class="btn-primary" @click="$emit('close')">
+          Закрыть
+        </button>
       </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { computed } from 'vue'
-
-const props = defineProps({
-  open: { type: Boolean, default: false },
-  score: { type: Number, default: 0 },
-  failed: { type: Boolean, default: false },
-  completedCount: { type: Number, default: 0 },
-  totalCount: { type: Number, default: 0 },
-  rows: { type: Array, default: () => [] },
+defineProps({
+  open: Boolean,
+  score: Number,
+  failed: Boolean,
+  completedCount: Number,
+  totalCount: Number,
+  rows: Array,
 })
 
 defineEmits(['close'])
-
-const progressPercent = computed(() => {
-  if (props.totalCount <= 0) return 0
-  return Math.floor((props.completedCount / props.totalCount) * 100)
-})
 </script>
+
+<style scoped>
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal {
+  width: 100%;
+  max-width: 620px;
+  background: #0b1020 !important;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  padding: 16px;
+}
+
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.row-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px;
+  border-radius: 12px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid var(--line);
+}
+
+.muted {
+  font-size: 13px;
+  color: var(--muted);
+}
+</style>
