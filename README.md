@@ -132,9 +132,10 @@
   @remove="removeTask"
   @toggle-active="toggleTaskActive"
 />
+```
 Пример вычисляемого свойства, реализующего фильтрацию задач:
 
-
+```
 const filteredTasks = computed(() => {
   if (filter.value === 'active') {
     return tasks.value.filter(t => t.active)
@@ -144,11 +145,13 @@ const filteredTasks = computed(() => {
   }
   return tasks.value
 })
+```
+
 Данный код демонстрирует использование реактивных данных и вычисляемых свойств, которые автоматически пересчитываются при изменении состояния приложения.
 
 6. Пример данных (PostgreSQL / JSON)
 Пример структуры задачи:
-
+```
 
 {
   "id": 1,
@@ -161,9 +164,10 @@ const filteredTasks = computed(() => {
   "active": true,
   "important": true
 }
+```
 Пример сохранённого дня:
 
-
+```
 {
   "day": "2026-01-12",
   "score": 82,
@@ -171,11 +175,13 @@ const filteredTasks = computed(() => {
   "completed_count": 4,
   "total_count": 5
 }
+```
 7. Инструкция по запуску (Docker)
 Для запуска проекта используется Docker Compose:
 
-
+```
 docker compose up --build
+```
 После запуска:
 
 frontend доступен по адресу http://localhost:8080
